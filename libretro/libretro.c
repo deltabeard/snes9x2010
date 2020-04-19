@@ -408,7 +408,9 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 }
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
-{}
+{
+   (void) cb;
+}
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
@@ -481,6 +483,10 @@ static void S9xAudioCallbackQueue(void)
 	   avail = APU_BUF_FRAMES;
 
    S9xMixSamples(audio_buf, avail);
+
+   /* TODO: Change Snes9x APU to require only one function to get audio samples.
+    * size_t S9xGetAudio(size_t audio_buf); returns number of frames in buffer.
+    */
    audio_batch_cb(audio_buf, avail >> 1);
 }
 

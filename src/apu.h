@@ -481,7 +481,7 @@ void S9xAPUSaveState (uint8 * block);
 
 bool8 S9xInitSound (size_t buffer_size, int lag_ms);
 
-int S9xGetSampleCount (void);
+size_t S9xGetSampleCount (void);
 void S9xFinalizeSamples (void);
 void S9xClearSamples (void);
 bool8 S9xMixSamples (short * buffer, unsigned sample_count);

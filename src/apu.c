@@ -3273,6 +3273,11 @@ static INLINE bool8 resampler_push(short *src, int num_samples)
 	APU
  ***********************************************************************************/
 
+size_t S9xGetAudio(size_t *buffer)
+{
+	return 0;
+}
+
 bool8 S9xMixSamples (short *buffer, unsigned sample_count)
 {
 	if (!Settings.Mute)
@@ -3296,7 +3301,7 @@ bool8 S9xMixSamples (short *buffer, unsigned sample_count)
 	return (TRUE);
 }
 
-int S9xGetSampleCount (void)
+size_t S9xGetSampleCount (void)
 {
 	if (r_step == 65536)
 	{
