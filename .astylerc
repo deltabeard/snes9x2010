@@ -1,0 +1,13 @@
+# The Libretro Conding Standard
+# Please use this file to help format your own changes correctly.
+# Please don't run this on the entire repository.
+
+style=allman
+indent=spaces=3
+indent-switches
+pad-header
+break-one-line-headers
+remove-braces
+max-code-length=80
+break-after-logical
+lineend=linux

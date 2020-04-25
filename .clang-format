@@ -1,0 +1,22 @@
+﻿# The Libretro Conding Standard
+# Please use this file to help format your own changes correctly.
+# Please don't run this on the entire repository.
+
+---
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveMacros = 'true'
+AlignOperands = 'true'
+BracketAlignmentStyle: AlwaysBreak
+BreakBeforeBraces: Allman
+BreakStringLiterals: 'true'
+ColumnLimit: '80'
+DerivePointerAlignment: 'false'
+EscapedNewlineAlignmentStyle: Left
+IncludeBlocks: Preserve
+IndentCaseLabels: 'true'
+IndentWidth: '3'
+PointerAlignmentStyle: Right
+SortIncludes: 'true'
+UseTab: Never
+
+...
