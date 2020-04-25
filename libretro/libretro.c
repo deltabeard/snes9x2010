@@ -454,7 +454,6 @@ void retro_get_system_info(struct retro_system_info *info)
 static void S9xAudioCallbackQueue(void)
 {
    size_t avail;
-   /* Just pick a big buffer. We won't use it all. */
    static int16_t audio_buf[APU_BUF_SZ];
 
    S9xFinalizeSamples();
