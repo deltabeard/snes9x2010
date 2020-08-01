@@ -1,0 +1,79 @@
+DEBUG := 0
+GIT_VERSION := " $(shell git rev-parse --short HEAD)"
+CORE_DIR := .
+CFLAGS :=
+LDLIBS :=
+
+TARGET_NAME := snes9x2010
+
+ifeq ($(CC), cl)
+	# MSVC cl is special as it has its own set of options that aren't
+	# compatible with clang or gcc.
+	OBJEXT := obj
+	OUTEXT := dll
+	CFLAGS += /nologo /utf-8 /W2
+ifneq ($(DEBUG), 0)
+	CFLAGS += /Zi /Od
+else
+	CFLAGS += /O2 /GL
+endif
+
+else
+	# For clang and gcc
+	OBJEXT := o
+	OUTEXT := so
+	CFLAGS += -shared -fPIC -Wl,--version-script=libretro/link.T -Wall -Wextra
+	LDLIBS += -lm
+ifeq ($(DEBUG), 1)
+	CFLAGS += -Og -g3
+else
+	CFLAGS += -O2 -ffast-math -flto -g1
+endif
+
+endif # ifeq CC
+
+TARGET := $(TARGET_NAME)_libretro.$(OUTEXT)
+
+LIBRETRO_COMM_DIR := $(CORE_DIR)/libretro/libretro-common
+INCFLAGS := -I$(CORE_DIR)/libretro -I$(CORE_DIR)/src -I$(LIBRETRO_COMM_DIR)/include
+override CFLAGS += -DLAGFIX -DHAVE_STRINGS_H -DHAVE_INTTYPES_H -D__LIBRETRO__ \
+	-DRIGHTSHIFT_IS_SAR -DINLINE=inline $(INCFLAGS)
+
+SOURCES_C := $(CORE_DIR)/src/apu.c \
+	$(CORE_DIR)/src/bsx.c \
+	$(CORE_DIR)/src/c4emu.c \
+	$(CORE_DIR)/src/cheats.c \
+	$(CORE_DIR)/src/controls.c \
+	$(CORE_DIR)/src/cpu.c \
+	$(CORE_DIR)/src/cpuexec.c \
+	$(CORE_DIR)/src/dsp.c \
+	$(CORE_DIR)/src/fxemu.c \
+	$(CORE_DIR)/src/globals.c \
+	$(CORE_DIR)/src/memmap.c \
+	$(CORE_DIR)/src/obc1.c \
+	$(CORE_DIR)/src/ppu.c \
+	$(CORE_DIR)/src/sa1.c \
+	$(CORE_DIR)/src/sdd1.c \
+	$(CORE_DIR)/src/seta.c \
+	$(CORE_DIR)/src/snapshot.c \
+	$(CORE_DIR)/src/spc7110.c \
+	$(CORE_DIR)/src/srtc.c \
+	$(CORE_DIR)/src/tile.c \
+	$(CORE_DIR)/src/hwregisters.c \
+	$(CORE_DIR)/libretro/libretro.c \
+	$(LIBRETRO_COMM_DIR)/streams/memory_stream.c
+
+OBJECTS := $(SOURCES_C:.c=.$(OBJEXT))
+
+all: $(TARGET)
+$(TARGET_NAME)_libretro.dll: $(OBJECTS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) /LD /Fe$@ $(OBJECTS) $(LDFLAGS)
+
+%.obj: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) /Fo$@ /c $^ $(LDFLAGS)
+
+$(TARGET_NAME)_libretro.so: $(OBJECTS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^ $(LDFLAGS)
+
+clean:
+	$(RM) $(OBJECTS) $(TARGET)
