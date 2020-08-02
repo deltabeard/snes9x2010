@@ -3160,7 +3160,7 @@ static void resampler_read(short *data, int num_samples)
 
 	if (r_step == 65536)
 	{
-		//direct copy if we are not resampling
+		/* direct copy if we are not resampling */
 		int bytesUntilBufferEnd = rb_buffer_size - rb_start;
 		while (num_samples > 0)
 		{
@@ -3636,8 +3636,8 @@ static void NO_OPTIMIZE to_apu_from_state (uint8 **buf, void *var, size_t size)
 	*buf += size;
 }
 
-// work around optimization bug in android GCC
-// similar to this: http://jeffq.com/blog/over-aggressive-gcc-optimization-can-cause-sigbus-crash-when-using-memcpy-with-the-android-ndk/
+/* work around optimization bug in android GCC
+ * similar to this: http://jeffq.com/blog/over-aggressive-gcc-optimization-can-cause-sigbus-crash-when-using-memcpy-with-the-android-ndk/ */
 #if defined(ANDROID) || defined(__QNX__)
 void __attribute__((optimize(0))) S9xAPUSaveState (uint8 *block)
 #else
@@ -3653,7 +3653,7 @@ void S9xAPUSaveState (uint8 *block)
 	SET_LE32(ptr, spc_remainder);
 	ptr += sizeof(int32);
 
-	//zero out the rest of the save state block
+	/* zero out the rest of the save state block */
 	memset(ptr, 0, SPC_SAVE_STATE_BLOCK_SIZE - (ptr - block));
 }
 

@@ -228,10 +228,10 @@ uint8 S9xGetByteFromRegister(uint8 *GetAddress, uint32 Address)
 
       case MAP_LOROM_SRAM:
       case MAP_SA1RAM:
-         // Address & 0x7fff   : offset into bank
-         // Address & 0xff0000 : bank
-         // bank >> 1 | offset : SRAM address, unbound
-         // unbound & SRAMMask : SRAM offset
+         /* Address & 0x7fff   : offset into bank
+          * Address & 0xff0000 : bank
+          * bank >> 1 | offset : SRAM address, unbound
+          * unbound & SRAMMask : SRAM offset */
          byte = *(Memory.SRAM + ((((Address & 0xff0000) >> 1) | (Address & 0x7fff)) & Memory.SRAMMask));
          break;
 

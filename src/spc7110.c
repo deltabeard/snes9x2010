@@ -1861,7 +1861,7 @@ void S9xSPC7110PreSaveState (void)
 	}
 }
 
-void S9xSPC7110PostLoadState (int version)//version unused
+void S9xSPC7110PostLoadState (int version)
 {
 	r4801 = s7snap.r4801;
 	r4802 = s7snap.r4802;
@@ -1928,13 +1928,13 @@ void S9xSPC7110PostLoadState (int version)//version unused
 	decomp_mode   = (unsigned) s7snap.decomp_mode;
 	decomp_offset = (unsigned) s7snap.decomp_offset;
 
-   memcpy(decomp_buffer,s7snap.decomp_buffer,SPC7110_DECOMP_BUFFER_SIZE);
+	memcpy(decomp_buffer,s7snap.decomp_buffer,SPC7110_DECOMP_BUFFER_SIZE);
 
 	decomp_buffer_rdoffset = (unsigned) s7snap.decomp_buffer_rdoffset;
 	decomp_buffer_wroffset = (unsigned) s7snap.decomp_buffer_wroffset;
 	decomp_buffer_length   = (unsigned) s7snap.decomp_buffer_length;
 
-   memcpy(context,s7snap.context,sizeof(ContextState) * 32);
-   
+	memcpy(context,s7snap.context,sizeof(ContextState) * 32);
+
 	s7_update_time(0);
 }
