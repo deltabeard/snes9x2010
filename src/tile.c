@@ -574,7 +574,7 @@ void S9xSelectTileRenderers (int BGMode, bool8 sub, bool8 obj)
 	interlace = obj ? FALSE : IPPU.Interlace;
 	hires = !sub && (BGMode == 5 || BGMode == 6 || IPPU.PseudoHires);
 
-	if (!IPPU.DoubleWidthPixels)	// normal width
+	if (!IPPU.DoubleWidthPixels) /* normal width */
 	{
 		DT     = Renderers_DrawTile16Normal1x1;
 		DCT    = Renderers_DrawClippedTile16Normal1x1;
@@ -584,7 +584,7 @@ void S9xSelectTileRenderers (int BGMode, bool8 sub, bool8 obj)
 		DM7BG2 = M7M2 ? Renderers_DrawMode7MosaicBG2Normal1x1 : Renderers_DrawMode7BG2Normal1x1;
 		GFX.LinesPerTile = 8;
 	}
-	else if(hires)			//hires double width
+	else if (hires) /* hires double width */
 	{
 		if (interlace)
 		{

@@ -1732,8 +1732,8 @@ static void Map_SufamiTurboPseudoLoROMMap (void)
 	/* I don't care :P */
 	MAP_SPACE(0x60, 0x63, 0x8000, 0xffff, Memory.SRAM - 0x8000, true);
 	MAP_SPACE(0xe0, 0xe3, 0x8000, 0xffff, Memory.SRAM - 0x8000, true);
-	MAP_SPACE(0x70, 0x73, 0x8000, 0xffff, Memory.SRAM + 0x4000 - 0x8000, false);//these two seem to duplicate the above ones in
-	MAP_SPACE(0xf0, 0xf3, 0x8000, 0xffff, Memory.SRAM + 0x4000 - 0x8000, false);//way that makes the duplicates hard to find.
+	MAP_SPACE(0x70, 0x73, 0x8000, 0xffff, Memory.SRAM + 0x4000 - 0x8000, false);/* these two seem to duplicate the above ones in */
+	MAP_SPACE(0xf0, 0xf3, 0x8000, 0xffff, Memory.SRAM + 0x4000 - 0x8000, false);/* way that makes the duplicates hard to find. */
 
 	MAP_WRAM();
 
@@ -2476,9 +2476,9 @@ static bool8 InitROM (void)
 
 	/* FORCIBLY DISABLE HIGH-RES */
 
-            if (		
+            if (
                   MATCH_NA("DONKEY KONG COUNTRY")		/* Donkey Kong Country */
-                  //|| MATCH_ID("ADNE")			/* Donkey Kong Country 2 (US) */
+                  /* || MATCH_ID("ADNE") */			/* Donkey Kong Country 2 (US) */
                   || MATCH_ID("AD8")			/* Doom */
                )
                Settings.SupportHiRes = FALSE;
@@ -2500,7 +2500,7 @@ static bool8 InitROM (void)
 				|| MATCH_NA("AREA88")		/* Area 88 */
 				|| MATCH_NA("U.N.Squadron")	/* UN Squadron */
 				|| MATCH_NA("Perfect Eleven")	/* Perfect Eleven - ISS1 */
-				//|| MATCH_ID("ADNE")			/* Donkey Kong Country 2 (US) */
+				/* || MATCH_ID("ADNE") */	/* Donkey Kong Country 2 (US) */
 				|| MATCH_ID("AWJ")		/* ISS Deluxe / World Soccer 2 Fighting Eleven */
 				|| MATCH_NA("JIM POWER THE LOST DIO") /* Jim Power The Lost Dimension */
 				|| MATCH_ID("A3C")		/* Donkey Kong Country 3*/
@@ -2680,21 +2680,29 @@ static bool8 InitROM (void)
 			PPU.RenderSub = TRUE;
 
 		if(
-				//MATCH_NA("Super Metroid") 	/* Super Metroid*/
-				//|| MATCH_NA("DONKEY KONG COUNTRY") /* Donkey Kong Country 1 */
-				//|| MATCH_NA("AREA88")		/* Area 88 */
-				//|| MATCH_NA("U.N.Squadron")	/* UN Squadron */
-				//|| MATCH_NA("Perfect Eleven")	/* Perfect Eleven - ISS1 */
-				//MATCH_ID("ADNE")			/* Donkey Kong Country 2 (US) */
-				//|| MATCH_ID("AWJ")		/* ISS Deluxe / World Soccer 2 Fighting Eleven */
-				//|| MATCH_NA("JIM POWER THE LOST DIO") /* Jim Power The Lost Dimension */
-				//|| MATCH_ID("A3C")		/* Donkey Kong Country 3*/
-				//|| MATCH_NA("Secret of MANA") /* Secret of Mana */
-				//|| MATCH_ID("A2J")		/* Jurassic Park 2 */
-				//|| MATCH_ID("AJL")		/* Justice League */
-				//|| MATCH_NA("JOE AND MAC")	/* Joe and Mac */
-				//|| MATCH_NA("JOE & MAC 2")	/* Joe & Mac 2 */
-				//|| MATCH_ID("J3")		/* Joe & Mac 3 EU) */
+			MATCH_NA("T.M.N.T. MW")	/* Teenage Mutant Ninja Turtles - Mutant Warriors (J) */
+			|| MATCH_NA("T.M.H.T TF")	/* Teenage Mutant Hero Turtles - Tour Fighters (EU) */
+			|| MATCH_NA("T.M.N.T. TF")	/* Teenage Mutant Ninja Turtles - Tour Fighters (AU) */
+			|| MATCH_NA("T.M.N.T.5")	/* Teenage Mutant Ninja Turtles - Tour Fighters (U) */
+			|| MATCH_ID("AKL")		/* Killer Instinct*/
+			|| MATCH_NA("SUPER MARIOWORLD")	/* Super Mario World*/
+			|| MATCH_ID("AJOJ")		/* Jikkyou Oshaberi Parodius*/
+#if 0
+			//MATCH_NA("Super Metroid") 	/* Super Metroid*/
+			//|| MATCH_NA("DONKEY KONG COUNTRY") /* Donkey Kong Country 1 */
+			//|| MATCH_NA("AREA88")		/* Area 88 */
+			//|| MATCH_NA("U.N.Squadron")	/* UN Squadron */
+			//|| MATCH_NA("Perfect Eleven")	/* Perfect Eleven - ISS1 */
+			//MATCH_ID("ADNE")			/* Donkey Kong Country 2 (US) */
+			//|| MATCH_ID("AWJ")		/* ISS Deluxe / World Soccer 2 Fighting Eleven */
+			//|| MATCH_NA("JIM POWER THE LOST DIO") /* Jim Power The Lost Dimension */
+			//|| MATCH_ID("A3C")		/* Donkey Kong Country 3*/
+			//|| MATCH_NA("Secret of MANA") /* Secret of Mana */
+			//|| MATCH_ID("A2J")		/* Jurassic Park 2 */
+			//|| MATCH_ID("AJL")		/* Justice League */
+			//|| MATCH_NA("JOE AND MAC")	/* Joe and Mac */
+			//|| MATCH_NA("JOE & MAC 2")	/* Joe & Mac 2 */
+			//|| MATCH_ID("J3")		/* Joe & Mac 3 EU) */
 			//|| MATCH_NA("JYUTEI SENKI")	/* Jyutei Senki */
 			//|| MATCH_ID("CQ  ")		/* Stunt Race FX */
 #if defined(_XBOX1) || defined(GEKKO)
@@ -2707,10 +2715,6 @@ static bool8 InitROM (void)
 			//|| MATCH_NA("T.M.N.T.")		/* Teenage Mutant Ninja Turtles 4 - Turtles In Time (J) */
 			//|| MATCH_NA("T.M.N.T.4")	/* Teenage Mutant Ninja Turtles 4 - Turtles In Time (AU) */
 			//|| MATCH_NA("T.M.N.T. 4")	/* Teenage Mutant Ninja Turtles 4 - Turtles In Time (US) */
-			MATCH_NA("T.M.N.T. MW")	/* Teenage Mutant Ninja Turtles - Mutant Warriors (J) */
-			|| MATCH_NA("T.M.H.T TF")	/* Teenage Mutant Hero Turtles - Tour Fighters (EU) */
-			|| MATCH_NA("T.M.N.T. TF")	/* Teenage Mutant Ninja Turtles - Tour Fighters (AU) */
-			|| MATCH_NA("T.M.N.T.5")	/* Teenage Mutant Ninja Turtles - Tour Fighters (U) */
 			//|| MATCH_NA("SUPER CASTLEVANIA 4") /* Super Castlevania IV */
 			//|| MATCH_NA("AKUMAJO DRACULA") /* Super Castlevania IV */
 			//|| MATCH_ID("ATVE")		/* Tales of Phantasia (EN) (DeJap)*/
@@ -2721,7 +2725,6 @@ static bool8 InitROM (void)
 			//|| MATCH_NA("SUPER MARIO KART") /* Super Mario Kart */
 			//|| MATCH_ID("AR3")		/* Mega Man X3 (JP/US) */
 			//|| MATCH_NA("SECRET OF EVERMORE") 	/* Secret of Evermore*/
-			|| MATCH_ID("AKL")		/* Killer Instinct*/
 			//|| MATCH_NA("NBA JAM")		/* NBA Jam */
 			//|| MATCH_NA("PILOTWINGS")	/* Pilotwings */
 			//|| MATCH_NA("FINAL FIGHT")	/* Final Fight */
@@ -2731,7 +2734,6 @@ static bool8 InitROM (void)
 			//|| MATCH_NA("GAIA GENSOUKI 1 JPN")	/* Gaia Gensouki (JPN)*/
 			//|| MATCH_ID("AEJ") 		/* Earthworm Jim*/
 			//|| MATCH_ID("AFJ")		/* Kirby's Dreamland 3 */
-			|| MATCH_NA("SUPER MARIOWORLD")	/* Super Mario World*/
 			//|| MATCH_NA("THE LEGEND OF ZELDA")	/* Zelda 3*/
 			//|| MATCH_NA("LA LEGENDE DE ZELDA")	/* Zelda 3 (FR)*/
 			//|| MATCH_NA("ZELDANODENSETSU")		/* Zelda 3 (JPN)*/
@@ -2751,7 +2753,6 @@ static bool8 InitROM (void)
 			//|| MATCH_NA("GS MIKAMI")		/* GS Mikami - Joreishi wa Nice Body*/
 			//|| MATCH_ID("ATQ")		/* Theme Park */
 			//|| MATCH_NA("TOTAL CARNAGE")	/* Total Carnage */
-			|| MATCH_ID("AJOJ")		/* Jikkyou Oshaberi Parodius*/
 			//|| MATCH_NA("ROCK N' ROLL RACING") /* Rock 'n Roll Racing */
 			//|| MATCH_NA("RISE OF THE ROBOTS")	/* Rise Of The Robots*/
 			//|| MATCH_ID("A3T")		/* Top Gear 3000 */
@@ -2859,6 +2860,7 @@ static bool8 InitROM (void)
 			//|| MATCH_NA("DOOM")		/* Doom */
 			//|| MATCH_NA("XAK 1")		/* Xak 1*/
 			//|| MATCH_NA("XARDION")		/* Xardion*/
+#endif
 			)
 		  	coldata_update_screen = FALSE;
 		else
@@ -2866,7 +2868,7 @@ static bool8 InitROM (void)
 
 		Settings.SpeedhackGameID = SPEEDHACK_NONE;
 
-		/* Clipping hack - gains around 5-7 extra fps - only use it 
+		/* Clipping hack - gains around 5-7 extra fps - only use it
 		   for specific games where nothing breaks with this hack on */
 
 		if(
