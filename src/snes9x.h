@@ -205,26 +205,6 @@ extern "C" {
 #define SNES_SUPPORT_MULTI_CART		0
 #endif
 
-#include <boolean.h>
-#include <streams/memory_stream.h>
-
- /* Create some sort of abstraction for files 
-  * using memory only since libretro API is memory oriented.
-  *
-  * Very hacky, but at least allows us to avoid hacking up 
-  * the whole source or go through the file system every time 
-  * we want to do something. */
-
-#define STREAM memstream_t *
-#define READ_STREAM(p, l, s)     memstream_read(s, p, l)
-#define WRITE_STREAM(p, l, s)    memstream_write(s, p, l)
-#define GETS_STREAM(p, l, s)     memstream_gets(s, p, l)
-#define GETC_STREAM(s)           memstream_getc(s)
-#define OPEN_STREAM(f, m)        memstream_open(0)
-#define FIND_STREAM(f)           memstream_pos(f)
-#define REVERT_STREAM(f, o, s)   memstream_seek(f, o, s)
-#define CLOSE_STREAM(s)          memstream_close(s)
-
 #define SNES_WIDTH		256
 #define SNES_HEIGHT		224
 #define SNES_HEIGHT_EXTENDED	239
@@ -286,7 +266,7 @@ extern "C" {
 #define IRQ_FLAG			2048	/* CPU */
 #define HALTED_FLAG			4096	/* APU */
 
-extern bool overclock_cycles;
+extern bool8 overclock_cycles;
 extern int one_c, slow_one_c, two_c;
 
 struct SCPUState

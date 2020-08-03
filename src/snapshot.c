@@ -1083,6 +1083,7 @@ static FreezeData	SnapBSX[] =
 	ARRAY_ENTRY(6, test2192, 32, uint8_ARRAY_V)
 };
 
+#if 0
 static bool8 S9xOpenSnapshotFile(const char * file_mode, STREAM *file)
 {
 	if((*file = OPEN_STREAM("", file_mode)) != 0)
@@ -1352,9 +1353,11 @@ void S9xFreezeToStream (STREAM stream)
 	if (Settings.BS)
 		FreezeStruct(stream, "BSX", &BSX, SnapBSX, COUNT(SnapBSX));
 }
+#endif
 
 bool8 S9xFreezeGame (void)
 {
+#if 0
 	STREAM	stream = NULL;
 
 	if (S9xOpenSnapshotFile("wb", &stream))
@@ -1365,11 +1368,13 @@ bool8 S9xFreezeGame (void)
 		return (TRUE);
 	}
 
+#endif
 	return (FALSE);
 }
 
 bool8 S9xUnfreezeGame (void)
 {
+#if 0
 	STREAM stream = NULL;
 
 	if (S9xOpenSnapshotFile("rb", &stream))
@@ -1381,6 +1386,7 @@ bool8 S9xUnfreezeGame (void)
 			return (TRUE);
 	}
 
+#endif
 	return (FALSE);
 }
 

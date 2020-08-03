@@ -179,6 +179,8 @@
 #ifndef _MEMMAP_H_
 #define _MEMMAP_H_
 
+#include "port.h"
+
 #define ROM_NAME_LEN	23
 
 #define MEMMAP_BLOCK_SIZE	(0x1000)
@@ -230,14 +232,12 @@ enum speedhacks
 	SPEEDHACK_SUPER_METROID,
 	SPEEDHACK_KILLER_INSTINCT,
 	SPEEDHACK_FF6,
-   SPEEDHACK_STAR_FOX_1,
-   SPEEDHACK_SUPER_MARIO_WORLD,
+	SPEEDHACK_STAR_FOX_1,
+	SPEEDHACK_SUPER_MARIO_WORLD,
 };
 
 typedef struct
 {
-	int32	HeaderCount;
-
 	uint8	*RAM;
 	uint8	*ROM;
 	uint8	*SRAM;
@@ -255,7 +255,6 @@ typedef struct
 	uint8	BlockIsROM[MEMMAP_NUM_BLOCKS];
 	uint8	ExtendedFormat;
 
-	char	ROMFilename[PATH_MAX + 1];
 	char	ROMName[ROM_NAME_LEN];
 	char	RawROMName[ROM_NAME_LEN];
 	char	ROMId[5];
@@ -268,19 +267,19 @@ typedef struct
 	uint32	ROMComplementChecksum;
 	uint32	ROMCRC32;
 
+	uint8	HeaderCount;
 	bool8	HiROM;
 	bool8	LoROM;
 	uint8	SRAMSize;
 	uint32	SRAMMask;
 	uint32	CalculatedSize;
 	uint32	CalculatedChecksum;
-
 } CMemory;
 
 bool8	Init (void);
 void	Deinit (void);
 
-bool8 LoadROM (const char *filename);
+bool8 LoadROM (const uint8 *data, uint32 size);
 bool8 LoadMultiCart (const char *cartA, const char *cartB);
 bool8 LoadSufamiTurbo (const char *cartA, const char *cartB);
 bool8 LoadSameGame (const char *cartA, const char *cartB);
