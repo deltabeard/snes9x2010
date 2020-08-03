@@ -565,7 +565,6 @@ void Deinit (void)
 
 	if (Memory.ROM)
 	{
-		Memory.ROM -= 0x8000;
 		free(Memory.ROM);
 		Memory.ROM = NULL;
 	}
@@ -741,95 +740,37 @@ static int ScoreLoROM (uint32 calculated_size, uint8 * rom, bool8 skip_header, i
 	return (score);
 }
 
-static uint32 HeaderRemove (uint32 size, int32 * headerCount, uint8 *buf)
+static uint32 HeaderRemove (const uint8 *data, uint32 size, const uint8** rom)
 {
-	uint32 calc_size;
+	uint32 calc_size = (size / 0x2000) * 0x2000;
+	const char *const hdr_msg[3] = {
+		"No ROM header was found.",
+		"A ROM header was found.",
+		"Multiple ROM header were found.",
+	};
 
-	calc_size = (size / 0x2000) * 0x2000;
+	*rom = data;
+	Memory.HeaderCount = 0;
 
 	if (size - calc_size == 512)
 	{
-		memmove(buf, buf + 512, calc_size);
-		(*headerCount)++;
+		*rom = *rom + 512;
+		Memory.HeaderCount++;
 		size -= 512;
 	}
 
-	return (size);
-}
-
-static uint32 FileLoader (uint8 *buffer, const char *filename, int32 maxsize)
-{
-	/* <- ROM size without header */
-	/* ** Memory.HeaderCount */
-	/* ** Memory.ROMFilename */
-
-	bool8	more;
-	uint64_t	size;
-	char	fname[PATH_MAX + 1], drive[_MAX_DRIVE + 1], dir[PATH_MAX + 1], name[PATH_MAX + 1], exts[PATH_MAX + 1];
-	int	len;
-	uint8	*ptr;
-	STREAM	fp;
-	int32 totalSize = 0;
-	char *ext = &exts[0];
-
-	Memory.HeaderCount = 0;
-
-	_splitpath(filename, drive, dir, name, exts);
-	_makepath(fname, drive, dir, name, exts);
-
-	fp = OPEN_STREAM(fname, "rb");
-	if (!fp)
-		return (0);
-
-	strcpy(Memory.ROMFilename, fname);
-
-	len  = 0;
-	size = 0;
-	more = FALSE;
-	ptr = buffer;
-
-	do
+	switch(Memory.HeaderCount)
 	{
-		size = READ_STREAM(ptr, (uint64_t)(maxsize + 0x200 - (ptr - buffer)), fp);
-		CLOSE_STREAM(fp);
+		case 0:
+		case 1:
+			S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, hdr_msg[Memory.HeaderCount]);
+			break;
+		default:
+			S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, hdr_msg[2]);
+			break;
+	}
 
-		size = HeaderRemove(size, &Memory.HeaderCount, ptr);
-		totalSize += size;
-		ptr += size;
-
-		/* check for multi file roms*/
-		if (ptr - buffer < maxsize + 0x200 &&
-				(isdigit(ext[0]) && ext[1] == 0 && ext[0] < '9'))
-		{
-			more = TRUE;
-			ext[0]++;
-			_makepath(fname, drive, dir, name, exts);
-		}
-		else
-			if (ptr - buffer < maxsize + 0x200 &&
-					(((len = strlen(name)) == 7 || len == 8) &&
-						strncasecmp(name, "sf", 2) == 0 &&
-						isdigit(name[2]) && isdigit(name[3]) && isdigit(name[4]) && isdigit(name[5]) &&
-						isalpha(name[len - 1])))
-			{
-				more = TRUE;
-				name[len - 1]++;
-				_makepath(fname, drive, dir, name, exts);
-			}
-			else
-				more = FALSE;
-
-	}	while (more && (fp = OPEN_STREAM(fname, "rb")) != NULL);
-
-	if (Memory.HeaderCount == 0)
-		S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "No ROM file header found.");
-	else
-		if (Memory.HeaderCount == 1)
-			S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "Found ROM file header (and ignored it).");
-		else
-			S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "Found multiple ROM file headers (and ignored them).");
-
-	return ((uint32) totalSize);
+	return size;
 }
 
 static uint32 caCRC32 (uint8 *array, uint32 size, uint32 crc32)
@@ -842,31 +783,38 @@ static uint32 caCRC32 (uint8 *array, uint32 size, uint32 crc32)
 	return (~crc32);
 }
 
-bool8 LoadROM (const char *filename)
+bool8 LoadROM (const uint8 *data, uint32 size)
 {
-	int	hi_score, lo_score, retry_count;
-	bool8 interleaved, tales;
-	uint8 * RomHeader;
-	int32 totalFileSize;
+	int    hi_score, lo_score, retry_count;
+	bool8  interleaved, tales;
+	uint32 rom_size;
+	uint8 *RomHeader;
+	uint8 *full_rom;
 
 	retry_count = 0;
 
-	if (!filename)
-		return FALSE;
-
-	memset(Memory.ROM, 0, MAX_ROM_SIZE);
 	memset(&Multi, 0, sizeof(Multi));
 
 again:
 	Memory.CalculatedSize = 0;
 	Memory.ExtendedFormat = NOPE;
 
-	totalFileSize = FileLoader(Memory.ROM, filename, MAX_ROM_SIZE);
-	if (!totalFileSize)
 	{
-		S9xMessage(S9X_MSG_ERROR, S9X_CATEGORY_ROM,
-				"Unable to load ROM");
-		return FALSE;
+		const uint8 *rom;
+		rom_size = HeaderRemove(data, size, &rom);
+		if (!rom_size)
+		{
+			S9xMessage(S9X_MSG_ERROR, S9X_CATEGORY_ROM,
+					"Unable to load ROM");
+			return FALSE;
+		}
+
+		Memory.ROM = malloc(rom_size);
+		full_rom = Memory.ROM;
+		if(Memory.ROM == NULL)
+			return FALSE;
+
+		memcpy(Memory.ROM, rom, rom_size);
 	}
 
 	hi_score = ScoreHiROM(Memory.CalculatedSize, Memory.ROM, FALSE, 0);
@@ -876,22 +824,27 @@ again:
 		((hi_score >  lo_score && ScoreHiROM(Memory.CalculatedSize, Memory.ROM, TRUE, 0) > hi_score) ||
 		 (hi_score <= lo_score && ScoreLoROM(Memory.CalculatedSize, Memory.ROM, TRUE, 0) > lo_score)))
 	{
-		memmove(Memory.ROM, Memory.ROM + 512, totalFileSize - 512);
-		totalFileSize -= 512;
-		S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "Try 'force no-header' option if the game doesn't work");
+		Memory.ROM += 512;
+		rom_size -= 512;
+		S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM,
+				"Please set the 'force no-header' option if "
+				"this game does not work");
 		/* modifying ROM, so we need to rescore */
 		hi_score = ScoreHiROM(Memory.CalculatedSize, Memory.ROM, FALSE, 0);
 		lo_score = ScoreLoROM(Memory.CalculatedSize, Memory.ROM, FALSE, 0);
 	}
 
-	Memory.CalculatedSize = (totalFileSize / 0x2000) * 0x2000;
+	Memory.CalculatedSize = (rom_size / 0x2000) * 0x2000;
 
 	if (Memory.CalculatedSize > 0x400000 &&
 		(Memory.ROM[0x7fd5] + (Memory.ROM[0x7fd6] << 8)) != 0x4332 && /* exclude S-DD1 */
 		(Memory.ROM[0x7fd5] + (Memory.ROM[0x7fd6] << 8)) != 0x4532 &&
 		(Memory.ROM[0xffd5] + (Memory.ROM[0xffd6] << 8)) != 0xF93a && /* exclude SPC7110 */
 		(Memory.ROM[0xffd5] + (Memory.ROM[0xffd6] << 8)) != 0xF53a)
+	{
+		/* TODO: Change YEAH/NOPE to TRUE/FALSE. */
 		Memory.ExtendedFormat = YEAH;
+	}
 
 	/* if both vectors are invalid, it's type 1 interleaved LoROM */
 	if (Memory.ExtendedFormat == NOPE &&
@@ -899,7 +852,7 @@ again:
 		((Memory.ROM[0xfffc] + (Memory.ROM[0xfffd] << 8)) < 0x8000))
 	{
 		if (!Settings.ForceInterleaved && !Settings.ForceNotInterleaved)
-			S9xDeinterleaveType1(totalFileSize, Memory.ROM);
+			S9xDeinterleaveType1(rom_size, Memory.ROM);
 	}
 
 	/* CalculatedSize is now set, so rescore */
@@ -985,7 +938,8 @@ again:
 
 	if (!Settings.ForceNotInterleaved && interleaved)
 	{
-		S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "ROM image is in interleaved format - converting...");
+		S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM,
+				"Converting ROM image from interleaved format.");
 
 		if (tales)
 		{
@@ -1003,16 +957,14 @@ again:
 			Memory.LoROM = FALSE;
 			Memory.HiROM = TRUE;
 		}
-		else
-		if (Settings.ForceInterleaveGD24 && Memory.CalculatedSize == 0x300000)
+		else if (Settings.ForceInterleaveGD24 && Memory.CalculatedSize == 0x300000)
 		{
 			bool8	t = Memory.LoROM;
 			Memory.LoROM = Memory.HiROM;
 			Memory.HiROM = t;
 			S9xDeinterleaveGD24(Memory.CalculatedSize, Memory.ROM);
 		}
-		else
-		if (Settings.ForceInterleaved2)
+		else if (Settings.ForceInterleaved2)
 			S9xDeinterleaveType2(Memory.CalculatedSize, Memory.ROM);
 		else
 		{
@@ -1030,29 +982,30 @@ again:
 		{
 			if (retry_count == 0)
 			{
-				S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "ROM lied about its type! Trying again.");
+				S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM,
+						"ROM lied about its type! Trying again.");
 				Settings.ForceNotInterleaved = TRUE;
 				Settings.ForceInterleaved = FALSE;
 				retry_count++;
 				goto again;
 			}
 		}
-    }
+	}
 
 	if (Memory.ExtendedFormat == SMALLFIRST)
 		tales = TRUE;
 
 	if (tales)
 	{
-		uint8	*tmp = (uint8 *) malloc(Memory.CalculatedSize - 0x400000);
-		if (tmp)
-		{
-			S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "Fixing swapped ExHiROM...");
-			memcpy(tmp, Memory.ROM, Memory.CalculatedSize - 0x400000);
-			memmove(Memory.ROM, Memory.ROM + Memory.CalculatedSize - 0x400000, 0x400000);
-			memcpy(Memory.ROM + 0x400000, tmp, Memory.CalculatedSize - 0x400000);
-			free(tmp);
-		}
+		uint8 *tmp = malloc(Memory.CalculatedSize - 0x400000);
+		if(tmp == NULL)
+			return FALSE;
+
+		S9xMessage(S9X_MSG_INFO, S9X_CATEGORY_ROM, "Fixing swapped ExHiROM.");
+		memcpy(tmp, Memory.ROM, Memory.CalculatedSize - 0x400000);
+		memmove(Memory.ROM, Memory.ROM + Memory.CalculatedSize - 0x400000, 0x400000);
+		memcpy(Memory.ROM + 0x400000, tmp, Memory.CalculatedSize - 0x400000);
+		free(tmp);
 	}
 
 	memset(&SNESGameFixes, 0, sizeof(SNESGameFixes));
@@ -1066,7 +1019,20 @@ again:
 
 	S9xReset();
 
-    return (TRUE);
+	/* Free unused memory. */
+#if 0
+	{
+		uint8 *tmp = malloc(rom_size);
+		if(tmp == NULL)
+			return FALSE;
+
+		memcpy(tmp, Memory.ROM, rom_size);
+		Memory.ROM = tmp;
+		free(full_rom);
+	}
+#endif
+
+	return (TRUE);
 }
 
 #if SNES_SUPPORT_MULTI_CART

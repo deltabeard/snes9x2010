@@ -185,7 +185,6 @@
 #include <sys/types.h>
 #include <stdarg.h>
 #ifndef _MSC_VER
-#include <stdbool.h>
 #include <unistd.h>
 #endif
 
@@ -228,7 +227,7 @@ static retro_audio_sample_batch_t audio_batch_cb = NULL;
 static retro_environment_t environ_cb = NULL;
 
 extern s9xcommand_t keymap[1024];
-bool overclock_cycles = false;
+bool8 overclock_cycles = false;
 bool reduce_sprite_flicker = false;
 int one_c, slow_one_c, two_c;
 
@@ -889,16 +888,19 @@ void retro_run (void)
 
 size_t retro_serialize_size (void)
 {
+#if 0
    /* FIXME: No fail check, magic large number, etc. */
    uint8_t *tmpbuf = (uint8_t*)malloc(5000000);
    memstream_set_buffer(tmpbuf, (uint64_t)5000000);
    S9xFreezeGame("");
    free(tmpbuf);
    return memstream_get_last_size();
+#endif
 }
 
 bool retro_serialize(void *data, size_t size)
 {
+#if 0
    int result = -1;
    bool okay = false;
    okay = environ_cb(RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE, &result);
@@ -911,10 +913,12 @@ bool retro_serialize(void *data, size_t size)
       return FALSE;
 
    return TRUE;
+#endif
 }
 
 bool retro_unserialize(const void * data, size_t size)
 {
+#if 0
    int result = -1;
    bool okay = false;
    okay = environ_cb(RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE, &result);
@@ -925,13 +929,14 @@ bool retro_unserialize(const void * data, size_t size)
       return FALSE;
 
    return TRUE;
+#endif
 }
 
 void retro_cheat_reset(void)
 {
    S9xDeleteCheats();
    S9xApplyCheats();
-} 
+}
 
 void retro_cheat_set(unsigned index, bool enabled, const char *code)
 {
@@ -1089,7 +1094,7 @@ static void init_descriptors(void)
 }
 
 bool retro_load_game(const struct retro_game_info *game)
-{ 
+{
    int loaded;
    struct retro_memory_map map;
 
@@ -1098,10 +1103,7 @@ bool retro_load_game(const struct retro_game_info *game)
    map.descriptors    = memorydesc + MAX_MAPS - memorydesc_c;
    map.num_descriptors = memorydesc_c;
 
-   /* Hack. S9x cannot do stuff from RAM. <_< */
-   memstream_set_buffer((uint8_t*)game->data, (uint64_t)game->size);
-
-   loaded = LoadROM("");
+   loaded = LoadROM(game->data, game->size);
    if (!loaded)
    {
       const char *const err_msg = "ROM loading failed.";
