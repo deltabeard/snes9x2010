@@ -365,26 +365,26 @@ static void S9xDeinterleaveGD24 (int size, uint8 *base)
 
 bool8 Init (void)
 {
-	Memory.RAM	 = (uint8 *) malloc(0x20000);
-	Memory.SRAM = (uint8 *) malloc(0x20000);
-	Memory.VRAM = (uint8 *) malloc(0x10000);
-	Memory.ROM  = (uint8 *) malloc(MAX_ROM_SIZE + 0x200 + 0x8000);
+	Memory.RAM  = malloc(0x20000);
+	Memory.SRAM = malloc(0x20000);
+	Memory.VRAM = malloc(0x10000);
+	Memory.ROM  = malloc(MAX_ROM_SIZE + 0x200 + 0x8000);
 
-	IPPU.TileCache[TILE_2BIT]       = (uint8 *) malloc(MAX_2BIT_TILES * 64);
-	IPPU.TileCache[TILE_4BIT]       = (uint8 *) malloc(MAX_4BIT_TILES * 64);
-	IPPU.TileCache[TILE_8BIT]       = (uint8 *) malloc(MAX_8BIT_TILES * 64);
-	IPPU.TileCache[TILE_2BIT_EVEN]  = (uint8 *) malloc(MAX_2BIT_TILES * 64);
-	IPPU.TileCache[TILE_2BIT_ODD]   = (uint8 *) malloc(MAX_2BIT_TILES * 64);
-	IPPU.TileCache[TILE_4BIT_EVEN]  = (uint8 *) malloc(MAX_4BIT_TILES * 64);
-	IPPU.TileCache[TILE_4BIT_ODD]   = (uint8 *) malloc(MAX_4BIT_TILES * 64);
+	IPPU.TileCache[TILE_2BIT]       = malloc(MAX_2BIT_TILES * 64);
+	IPPU.TileCache[TILE_4BIT]       = malloc(MAX_4BIT_TILES * 64);
+	IPPU.TileCache[TILE_8BIT]       = malloc(MAX_8BIT_TILES * 64);
+	IPPU.TileCache[TILE_2BIT_EVEN]  = malloc(MAX_2BIT_TILES * 64);
+	IPPU.TileCache[TILE_2BIT_ODD]   = malloc(MAX_2BIT_TILES * 64);
+	IPPU.TileCache[TILE_4BIT_EVEN]  = malloc(MAX_4BIT_TILES * 64);
+	IPPU.TileCache[TILE_4BIT_ODD]   = malloc(MAX_4BIT_TILES * 64);
 
-	IPPU.TileCached[TILE_2BIT]      = (uint8 *) malloc(MAX_2BIT_TILES);
-	IPPU.TileCached[TILE_4BIT]      = (uint8 *) malloc(MAX_4BIT_TILES);
-	IPPU.TileCached[TILE_8BIT]      = (uint8 *) malloc(MAX_8BIT_TILES);
-	IPPU.TileCached[TILE_2BIT_EVEN] = (uint8 *) malloc(MAX_2BIT_TILES);
-	IPPU.TileCached[TILE_2BIT_ODD]  = (uint8 *) malloc(MAX_2BIT_TILES);
-	IPPU.TileCached[TILE_4BIT_EVEN] = (uint8 *) malloc(MAX_4BIT_TILES);
-	IPPU.TileCached[TILE_4BIT_ODD]  = (uint8 *) malloc(MAX_4BIT_TILES);
+	IPPU.TileCached[TILE_2BIT]      = malloc(MAX_2BIT_TILES);
+	IPPU.TileCached[TILE_4BIT]      = malloc(MAX_4BIT_TILES);
+	IPPU.TileCached[TILE_8BIT]      = malloc(MAX_8BIT_TILES);
+	IPPU.TileCached[TILE_2BIT_EVEN] = malloc(MAX_2BIT_TILES);
+	IPPU.TileCached[TILE_2BIT_ODD]  = malloc(MAX_2BIT_TILES);
+	IPPU.TileCached[TILE_4BIT_EVEN] = malloc(MAX_4BIT_TILES);
+	IPPU.TileCached[TILE_4BIT_ODD]  = malloc(MAX_4BIT_TILES);
 
 
 	/* don't render subscreen speed hack - disable this by default by 
@@ -565,6 +565,7 @@ void Deinit (void)
 
 	if (Memory.ROM)
 	{
+		Memory.ROM -= 0x8000;
 		free(Memory.ROM);
 		Memory.ROM = NULL;
 	}
@@ -789,10 +790,8 @@ bool8 LoadROM (const uint8 *data, uint32 size)
 	bool8  interleaved, tales;
 	uint32 rom_size;
 	uint8 *RomHeader;
-	uint8 *full_rom;
 
 	retry_count = 0;
-
 	memset(&Multi, 0, sizeof(Multi));
 
 again:
@@ -808,11 +807,6 @@ again:
 					"Unable to load ROM");
 			return FALSE;
 		}
-
-		Memory.ROM = malloc(rom_size);
-		full_rom = Memory.ROM;
-		if(Memory.ROM == NULL)
-			return FALSE;
 
 		memcpy(Memory.ROM, rom, rom_size);
 	}
@@ -1927,8 +1921,8 @@ static bool8 InitROM (void)
 	Settings.SRTC = FALSE;
 	Settings.BS = FALSE;
 	SuperFX.nRomBanks = Memory.CalculatedSize >> 15;
-   
-   Settings.SupportHiRes = TRUE;
+
+	Settings.SupportHiRes = TRUE;
 
 	/* Parse ROM header and read ROM information */
 

@@ -238,10 +238,8 @@ enum speedhacks
 
 typedef struct
 {
-	int32	HeaderCount;
-
-	uint8 *RAM;
-	uint8 *ROM;
+	uint8	*RAM;
+	uint8	*ROM;
 	uint8	*SRAM;
 	uint8	*VRAM;
 	uint8	*FillRAM;
@@ -269,14 +267,13 @@ typedef struct
 	uint32	ROMComplementChecksum;
 	uint32	ROMCRC32;
 
+	uint8	HeaderCount;
 	bool8	HiROM;
 	bool8	LoROM;
 	uint8	SRAMSize;
 	uint32	SRAMMask;
 	uint32	CalculatedSize;
 	uint32	CalculatedChecksum;
-
-	/* unsigned int is_rom_heap : 1; */
 } CMemory;
 
 bool8	Init (void);
