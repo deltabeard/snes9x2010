@@ -889,6 +889,7 @@ void retro_run (void)
 
 size_t retro_serialize_size (void)
 {
+	return 5 * 1024 * 1024;
 #if 0
    /* FIXME: No fail check, magic large number, etc. */
    uint8_t *tmpbuf = (uint8_t*)malloc(5000000);
@@ -901,36 +902,44 @@ size_t retro_serialize_size (void)
 
 bool retro_serialize(void *data, size_t size)
 {
-#if 0
    int result = -1;
-   bool okay = false;
-   okay = environ_cb(RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE, &result);
+   bool okay = environ_cb(RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE, &result);
    if (okay)
-   {
       Settings.FastSavestates = 0 != (result & 4);
-   }
-   memstream_set_buffer((uint8_t*)data, (uint64_t)size);
-   if (S9xFreezeGame() == FALSE)
-      return FALSE;
 
-   return TRUE;
-#endif
+   return S9xSerialize((uint8 *)data, (uint32)size);
 }
 
 bool retro_unserialize(const void * data, size_t size)
 {
-#if 0
    int result = -1;
-   bool okay = false;
-   okay = environ_cb(RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE, &result);
+   bool okay = environ_cb(RETRO_ENVIRONMENT_GET_AUDIO_VIDEO_ENABLE, &result);
    if (okay)
       Settings.FastSavestates = 0 != (result & 4);
-   memstream_set_buffer((uint8_t*)data, (uint64_t)size);
-   if (S9xUnfreezeGame() == FALSE)
-      return FALSE;
 
-   return TRUE;
-#endif
+   result = S9xUnserialize((const uint8 *)data, (uint32)size);
+   if(result == 1)
+	   return true;
+
+   switch(result)
+   {
+	case WRONG_FORMAT:
+		S9xMessage(S9X_MSG_ERROR, S9X_CATEGORY_SNAPSHOT,
+				"Save state format not recognised.");
+		break;
+	case WRONG_VERSION:
+		S9xMessage(S9X_MSG_ERROR, S9X_CATEGORY_SNAPSHOT,
+				"Save state version not supported.");
+		break;
+	case SNAPSHOT_INCONSISTENT:
+		S9xMessage(S9X_MSG_ERROR, S9X_CATEGORY_SNAPSHOT,
+				"Save state format inconsistent.");
+		break;
+   }
+
+   S9xMessage(S9X_MSG_ERROR, S9X_CATEGORY_SNAPSHOT,
+		   "Unable to restore save state.");
+   return false;
 }
 
 void retro_cheat_reset(void)

@@ -188,10 +188,9 @@
 #define SUCCESS			1
 #define WRONG_FORMAT		(-1)
 #define WRONG_VERSION		(-2)
-#define FILE_NOT_FOUND		(-3)
 #define SNAPSHOT_INCONSISTENT	(-6)
 
-bool8 S9xFreezeGame (const char * filename);
-bool8 S9xUnfreezeGame (const char * filename);
+bool8 S9xSerialize(uint8 *data, uint32 size);
+bool8 S9xUnserialize(const uint8 *data, uint32 size);
 
 #endif
