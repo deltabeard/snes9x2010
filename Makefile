@@ -10,7 +10,6 @@ ccparam = $(if $(subst cl,,$(CC)),$(1),$(2))
 
 ifeq ($(OS)$(MSYSTEM),Windows_NT)
 	SHELL := cmd
-	NULL := nul
 	RM := del
 	CC := cl
 	OBJEXT := obj
@@ -19,19 +18,18 @@ ifeq ($(OS)$(MSYSTEM),Windows_NT)
 	INLINE := __inline
 else
 	SHELL := sh
-	NULL := /dev/null
 	CC := cc
 	OBJEXT := o
 	OUTEXT := so
-	CFLAGS += -shared -fPIC -Wl,--version-script=libretro/link.T -Wall -Wextra
+	CFLAGS += -shared -fPIC -Wl,--version-script=libretro/link.T -Wall
 	LDLIBS += -lm
 	INLINE := inline
 endif
 
 ifneq ($(DEBUG),0)
-	CFLAGS += $(call ccparam,-Og -g3,/Zi /Od)
+	CFLAGS += $(call ccparam,-Og -g3 -Wextra,/Zi /Od /W3)
 else
-	CFLAGS += $(call ccparam,-O2 -ffast-math -g1,/O2 /GL)
+	CFLAGS += $(call ccparam,-O2 -ffast-math -g1,/O2 /GL /W1)
 endif
 
 TARGET := $(TARGET_NAME)_libretro.$(OUTEXT)
@@ -39,7 +37,7 @@ TARGET := $(TARGET_NAME)_libretro.$(OUTEXT)
 LIBRETRO_COMM_DIR := libretro/libretro-common
 INCFLAGS := -Ilibretro -Isrc -I$(LIBRETRO_COMM_DIR)/include
 CFLAGS += -DLAGFIX -DHAVE_STRINGS_H -DHAVE_INTTYPES_H -D__LIBRETRO__ \
-	-DRIGHTSHIFT_IS_SAR /DFRONTEND_SUPPORTS_RGB565 -DINLINE=$(INLINE) $(INCFLAGS)
+	-DRIGHTSHIFT_IS_SAR -DFRONTEND_SUPPORTS_RGB565 -DINLINE=$(INLINE) $(INCFLAGS)
 
 SRCS	:= $(wildcard $(CORE_DIR)src/*.c) $(LIBRETRO_COMM_DIR)/streams/memory_stream.c libretro/libretro.c
 
