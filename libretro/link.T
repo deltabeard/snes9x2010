@@ -1,5 +1,5 @@
 {
-   global: retro_*;
+   global: retro_*; re_core_*;
    local: *;
 };
 

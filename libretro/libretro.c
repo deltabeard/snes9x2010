@@ -190,6 +190,7 @@
 
 #include <libretro.h>
 
+#include <retro-extensions.h>
 #include "libretro_core_options.h"
 
 #include "../src/apu.h"
@@ -1233,3 +1234,14 @@ void _makepath (char *path, const char * a, const char *dir, const char *fname, 
    }
 }
 #endif
+
+const struct license_info_s *re_core_get_license_info(void)
+{
+	static const struct license_info_s l = {
+		LICENSE_TYPE_NONCOMMERCIAL, "Snes9x Non-Commercial License",
+		NULL, "https://git.io/JJbQA",
+		"https://github.com/deltabeard/snes9x2010"
+	};
+
+	return &l;
+}
