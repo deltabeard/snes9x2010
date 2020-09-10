@@ -200,7 +200,7 @@ extern uint8	*HDMAMemPointers[8];
 extern struct SLineData			LineData[240];
 static uint8 dma_sa1_channels_chars[9][8];
 
-extern bool reduce_sprite_flicker;
+extern bool8 reduce_sprite_flicker;
 
 #define TILE_PLUS(t, x)	(((t) & 0xfc00) | ((t + x) & 0x3ff))
 
