@@ -1,7 +1,11 @@
 *.bc
 *.js
 *.o
+*.obj
 *.so
+*.dll
+*.exp
+*.lib
 package.json
 .npmignore
 *.gcda
